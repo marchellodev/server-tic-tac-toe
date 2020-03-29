@@ -36,7 +36,7 @@ void server() {
 
 //    client.emit('unique_id', u.id);
 
-    client.on('findGame', () {
+    client.on('findGame', (data) {
       u.finding = true;
     });
 
@@ -57,11 +57,11 @@ void server() {
       u.game.makeMove(Position(data[0], data[1]));
     });
 
-    client.on('getPlayers', () {
+    client.on('getPlayers', (data) {
       client.emit('getPlayers', connections.length);
     });
 
-    client.on('getFindingPlayers', () {
+    client.on('getFindingPlayers', (data) {
       client.emit('getFindingPlayers',
           connections.where((user) => user.finding).length);
     });
@@ -122,7 +122,7 @@ void matchMaking() async {
 void client(String auth) async {
   print('running client');
 
-  var socket = io.io('http://localhost:3000', <String, dynamic>{
+  var socket = io.io('http://35.246.234.109:3000', <String, dynamic>{
     'transports': ['websocket'],
     'autoConnect': false
   });
