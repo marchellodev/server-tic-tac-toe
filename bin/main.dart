@@ -31,8 +31,8 @@ void server() {
     var u = User(id, client);
     connections.add(u);
 
-//    print('user was added');
-//    print(connections);
+    print('user was added');
+    print(connections);
 
 //    client.emit('unique_id', u.id);
 
@@ -42,8 +42,8 @@ void server() {
 
     client.on('setName', (data) {
       u.name = data;
-//      print('name was set');
-//      print(connections);
+      print('name was set');
+      print(connections);
     });
 
     client.on('makeMove', (data) {
