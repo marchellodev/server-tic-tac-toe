@@ -34,10 +34,18 @@ void server() {
     print('user was added');
     print(connections);
 
+    var connAmount = connections.length;
+    connections.forEach(
+        (connection) => connection.client.emit('getPlayers', connAmount));
+
 //    client.emit('unique_id', u.id);
 
     client.on('findGame', (data) {
-      u.finding = true;
+      if (!u.playing) u.finding = true;
+    });
+
+    client.on('stopFindGame', (data) {
+      u.finding = false;
     });
 
     client.on('setName', (data) {
@@ -57,20 +65,24 @@ void server() {
       u.game.makeMove(Position(data[0], data[1]));
     });
 
-    client.on('getPlayers', (data) {
-      client.emit('getPlayers', connections.length);
-    });
+//    client.on('getPlayers', (data) {
+//      client.emit('getPlayers', connections.length);
+//    });
 
-    client.on('getFindingPlayers', (data) {
-      client.emit('getFindingPlayers',
-          connections.where((user) => user.finding).length);
-    });
+//    client.on('getFindingPlayers', (data) {
+//      client.emit('getFindingPlayers',
+//          connections.where((user) => user.finding).length);
+//    });
 
     client.on('disconnect', (data) {
       connections.remove(connections.firstWhere((user) => user == u));
 
       print('user was removed');
       print(connections);
+
+      var connAmount = connections.length;
+      connections.forEach(
+          (connection) => connection.client.emit('getPlayers', connAmount));
 //      print('disconnect!!!!');
     });
 
@@ -84,18 +96,21 @@ void server() {
 //    });
   });
   io.listen(3000);
+  matchMaking();
 }
 
 void matchMaking() async {
   //todo: matchmaking
   if (connections.isNotEmpty) {
-    var looking = connections.where((user) => user.finding);
-    if (looking.length >= 2) {
+    var cases = connections.where((user) => user.finding).toList();
+    cases.shuffle();
+
+    if (cases.length >= 2) {
       var pointer = 0;
-      while (pointer < connections.length - 1) {
-        var u1 = connections[pointer];
+      while (pointer < cases.length - 1) {
+        var u1 = cases[pointer];
         pointer++;
-        var u2 = connections[pointer];
+        var u2 = cases[pointer];
 
         var match = Match(u1, u2);
 
@@ -103,26 +118,30 @@ void matchMaking() async {
         u1.playing = true;
         u1.game = match;
         u1.game_player = Player.u1;
+
         u1.client.emit('gameFound', [1, u2.name]);
 
         u2.finding = false;
         u2.playing = true;
         u2.game = match;
         u2.game_player = Player.u2;
-        u2.client.emit('gameFound', [2, u2.name]);
+        u2.client.emit('gameFound', [2, u1.name]);
+        print('game was created');
 
         pointer++;
       }
     }
   }
 
-  Future.delayed(Duration(milliseconds: 500), () => matchMaking());
+  Future.delayed(Duration(seconds: 1), () => matchMaking());
 }
 
 void client(String auth) async {
   print('running client');
 
-  var socket = io.io('http://35.246.234.109:3000', <String, dynamic>{
+//  var url = 'http://35.246.234.109:3000';
+  var url = 'https://8bb83d75.ngrok.io';
+  var socket = io.io(url, <String, dynamic>{
     'transports': ['websocket'],
     'autoConnect': false
   });
@@ -178,7 +197,7 @@ class Match {
   Match(this.u1, this.u2) {
     game = Game();
     started = getTime();
-
+    last_move = getTime();
     background();
   }
 
@@ -187,14 +206,15 @@ class Match {
       active = false;
       u1.playing = false;
       u1.client.emit(
-          'matchExpired', game.getMove() == Player.u1 ? u1.name : u2.name);
+          'gameEnd', game.getMove() == Player.u1 ? 2 : 1);
       u2.playing = false;
       u2.client.emit(
-          'matchExpired', game.getMove() == Player.u1 ? u1.name : u2.name);
+          'gameEnd', game.getMove() == Player.u1 ? 2 : 1);
       //todo: penalty
+      print('game was canceled');
     }
 
-    Future.delayed(Duration(seconds: 1), () => background());
+    if (active) Future.delayed(Duration(seconds: 1), () => background());
   }
 
   void makeMove(Position position) {
