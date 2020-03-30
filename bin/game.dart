@@ -60,30 +60,38 @@ class Game {
   }
 
   bool _noChance() {
-    for (var i = 0; i < 3; i++) {
-      //todo: idea: noChanceForThree method
-      var case1 = _noChanceForTwo(_map[0][0], _map[0][1]) ||
-          _noChanceForTwo(_map[0][1], _map[0][2]) ||
-          _noChanceForTwo(_map[0][0], _map[0][2]);
+//    for (var i = 0; i < 3; i++) {
+//      //todo: idea: noChanceForThree method
+//      var case1 = _noChanceForTwo(_map[0][0], _map[0][1]) ||
+//          _noChanceForTwo(_map[0][1], _map[0][2]) ||
+//          _noChanceForTwo(_map[0][0], _map[0][2]);
+//
+//      var case2 = _noChanceForTwo(_map[0][0], _map[1][0]) ||
+//          _noChanceForTwo(_map[1][0], _map[2][0]) ||
+//          _noChanceForTwo(_map[0][0], _map[2][0]);
+//
+//      if (!case1 || !case2) return false;
+//    }
+//
+//    var case1 = _noChanceForTwo(_map[0][0], _map[1][1]) ||
+//        _noChanceForTwo(_map[1][1], _map[2][2]) ||
+//        _noChanceForTwo(_map[0][0], _map[2][2]);
+//
+//    var case2 = _noChanceForTwo(_map[0][2], _map[1][1]) ||
+//        _noChanceForTwo(_map[1][1], _map[2][0]) ||
+//        _noChanceForTwo(_map[0][2], _map[2][2]);
+//
+//    if (!case1 || !case2) return false;
 
-      var case2 = _noChanceForTwo(_map[0][0], _map[1][0]) ||
-          _noChanceForTwo(_map[1][0], _map[2][0]) ||
-          _noChanceForTwo(_map[0][0], _map[2][0]);
+    var empty = false;
+    _map.forEach((row) {
+      row.forEach((cell) {
+        if (cell == Cell.none) empty = true;
+      });
+    });
 
-      if (!case1 || !case2) return false;
-    }
+   return !empty;
 
-    var case1 = _noChanceForTwo(_map[0][0], _map[1][1]) ||
-        _noChanceForTwo(_map[1][1], _map[2][2]) ||
-        _noChanceForTwo(_map[0][0], _map[2][2]);
-
-    var case2 = _noChanceForTwo(_map[0][2], _map[1][1]) ||
-        _noChanceForTwo(_map[1][1], _map[2][0]) ||
-        _noChanceForTwo(_map[0][2], _map[2][2]);
-
-    if (!case1 || !case2) return false;
-
-    return true;
   }
 
   bool _noChanceForTwo(Cell cell1, Cell cell2) =>

@@ -232,6 +232,7 @@ class Match {
       u2.game = null;
       u1.client.emit('gameEnd', 0);
       u2.client.emit('gameEnd', 0);
+      print('game was ended');
     } else if (game.win == Cell.u1 || game.win == Cell.u2) {
       active = false;
       var u = game.win == Cell.u1 ? 1 : 2;
@@ -241,6 +242,7 @@ class Match {
       u2.game = null;
       u1.client.emit('gameEnd', u);
       u2.client.emit('gameEnd', u);
+      print('game was ended');
     }
   }
 
