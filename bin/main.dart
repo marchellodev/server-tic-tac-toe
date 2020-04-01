@@ -1,16 +1,11 @@
 import 'package:socket_io/socket_io.dart';
-import 'package:socket_io_client/socket_io_client.dart' as io;
 import 'dart:async';
 import 'package:random_string/random_string.dart';
 
 import 'game.dart';
 
-void main(List<String> arguments) {
-  if (arguments[0] == 'server') {
-    server();
-  } else {
-    client(arguments[1]);
-  }
+void main() {
+  server();
 }
 
 List<User> connections = [];
@@ -63,15 +58,6 @@ void server() {
       u.game.makeMove(Position(data[0], data[1]));
     });
 
-//    client.on('getPlayers', (data) {
-//      client.emit('getPlayers', connections.length);
-//    });
-
-//    client.on('getFindingPlayers', (data) {
-//      client.emit('getFindingPlayers',
-//          connections.where((user) => user.finding).length);
-//    });
-
     client.on('disconnect', (data) {
       connections.remove(connections.firstWhere((user) => user == u));
 
@@ -81,24 +67,13 @@ void server() {
       var connAmount = connections.length;
       connections.forEach(
           (connection) => connection.client.emit('getPlayers', connAmount));
-//      print('disconnect!!!!');
     });
-
-//    client.on('message', (data) {
-//      print('message from $auth');
-//      if (auth == 'bob') {
-//        connections['alice'].emit('message', 'bob says: $data');
-//      } else {
-//        connections['bob'].emit('message', 'alice says: $data');
-//      }
-//    });
   });
   io.listen(3000);
   matchMaking();
 }
 
 void matchMaking() async {
-  //todo: matchmaking
   if (connections.isNotEmpty) {
     var cases = connections.where((user) => user.finding).toList();
     cases.shuffle();
@@ -134,41 +109,10 @@ void matchMaking() async {
   Future.delayed(Duration(seconds: 1), () => matchMaking());
 }
 
-void client(String auth) async {
-  print('running client');
-
-//  var url = 'http://35.246.234.109:3000';
-  var url = 'https://8bb83d75.ngrok.io';
-  var socket = io.io(url, <String, dynamic>{
-    'transports': ['websocket'],
-    'autoConnect': false
-  });
-  socket.connect();
-
-  await socket.on('connect', (_) {
-    print('connect');
-    socket.emit('setName', auth);
-    Future.delayed(Duration(seconds: 10), () => socket.disconnect());
-//    socket.emit('auth', auth);
-  });
-//  socket.on('message', (data) => print('new message: ' + data));
-//  socket.on('auth', (data) {
-//    print('new auth message: ' + data);
-//    stdout.write('> ');
-//  });
-//  socket.on('disconnect', (_) => print('disconnect'));
-//  socket.on('fromServer', (_) => print(_));
-//
-//  stdin.transform(utf8.decoder).transform(const LineSplitter()).listen((line) {
-//    stdout.write('> ');
-//    socket.emit('message', line);
-//  });
-}
-
 class User {
   String id;
   var client;
-  String name = 'noone';
+  String name = 'none';
   bool finding = false;
   bool playing = false;
   Match game;
@@ -178,7 +122,6 @@ class User {
 
   @override
   String toString() {
-    // TODO: implement toString
     return 'User<$id> $name | finding: $finding';
   }
 }
@@ -191,7 +134,6 @@ class Match {
   int started;
   int last_move;
 
-//todo: random assignment for u1 and u2
   Match(this.u1, this.u2) {
     game = Game();
     started = getTime();
