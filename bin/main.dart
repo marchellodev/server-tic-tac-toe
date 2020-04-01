@@ -49,10 +49,12 @@ void server() {
 
     client.on('makeMove', (data) {
       if (!u.playing) {
-        client.emit('error', 'not in a game!');
+        client.emit('gameError', 'not in a game!');
+        print('sending error');
         return;
       } else if (u.game.game.getMove() != u.game_player) {
-        client.emit('error', 'not your move!');
+        client.emit('gameError', 'not your move!');
+        print('sending error');
         return;
       }
       u.game.makeMove(Position(data[0], data[1]));
@@ -160,7 +162,8 @@ class Match {
     var move = game.makeMove(position);
     if (!move) {
       var player = game.getMove() == Player.u1 ? u1 : u2;
-      player.client.emit('error', 'cell is not empty!');
+      print('sending error for wrong move');
+      player.client.emit('gameError', 'cell is not empty!');
       return;
     }
     u1.client.emit('move', [u, position.x, position.y]);
