@@ -38,8 +38,6 @@ void server() {
     connections.forEach(
         (connection) => connection.client.emit('getPlayers', connAmount));
 
-//    client.emit('unique_id', u.id);
-
     client.on('findGame', (data) {
       if (!u.playing) u.finding = true;
     });
@@ -205,11 +203,9 @@ class Match {
     if (getTime() - last_move >= 20) {
       active = false;
       u1.playing = false;
-      u1.client.emit(
-          'gameEnd', game.getMove() == Player.u1 ? 2 : 1);
+      u1.client.emit('gameEnd', game.getMove() == Player.u1 ? 2 : 1);
       u2.playing = false;
-      u2.client.emit(
-          'gameEnd', game.getMove() == Player.u1 ? 2 : 1);
+      u2.client.emit('gameEnd', game.getMove() == Player.u1 ? 2 : 1);
       //todo: penalty
       print('game was canceled');
     }
@@ -219,9 +215,14 @@ class Match {
 
   void makeMove(Position position) {
     var u = game.getMove() == Player.u1 ? 1 : 2;
+    var move = game.makeMove(position);
+    if (!move) {
+      var player = game.getMove() == Player.u1 ? u1 : u2;
+      player.client.emit('error', 'cell is not empty!');
+      return;
+    }
     u1.client.emit('move', [u, position.x, position.y]);
     u2.client.emit('move', [u, position.x, position.y]);
-    game.makeMove(position);
     last_move = getTime();
 
     if (game.win == Cell.none) {

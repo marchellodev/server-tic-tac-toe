@@ -74,7 +74,7 @@ class Game {
 //    }
 //
 //    var case1 = _noChanceForTwo(_map[0][0], _map[1][1]) ||
-//        _noChanceForTwo(_map[1][1], _map[2][2]) ||
+//        _noChanceForTwo(_map[1][1], _map[2][2]) ||appaasad
 //        _noChanceForTwo(_map[0][0], _map[2][2]);
 //
 //    var case2 = _noChanceForTwo(_map[0][2], _map[1][1]) ||
